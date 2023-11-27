@@ -22,6 +22,7 @@ set LIBYAML_VER=0.2.5
 set PTHREAD_W32_VER=3.0.0
 set LEVELDB_MCPE_VER=1c7564468b41610da4f498430e795ca4de0931ff
 set LIBDEFLATE_VER=dd12ff2b36d603dbb7fa8838fe7e7176fcbd4f6f
+set LIBZSTD_VER=1.5.5
 
 set PHP_PMMPTHREAD_VER=6.0.12
 set PHP_YAML_VER=2.2.3
@@ -146,6 +147,23 @@ msbuild ALL_BUILD.vcxproj /p:Configuration=%MSBUILD_CONFIGURATION% /m >>"%log_fi
 call :pm-echo "Installing files..."
 msbuild INSTALL.vcxproj /p:Configuration=%MSBUILD_CONFIGURATION% /m >>"%log_file%" 2>&1 || exit 1
 copy %MSBUILD_CONFIGURATION%\yaml.pdb "%DEPS_DIR%\bin\yaml.pdb" >>"%log_file%" 2>&1 || exit 1
+
+cd /D "%DEPS_DIR%"
+
+call :pm-echo "Downloading zstd version %LIBZSTD_VER%..."
+call :get-zip "https://github.com/facebook/zstd/archive/v%LIBZSTD_VER%.zip" || exit 1
+move zstd-%LIBZSTD_VER% zstd >> "%log_file%" 2>&1
+cd zstd/build/cmake
+call :pm-echo "Generating build configuration..."
+cmake -G "%CMAKE_TARGET%" -A "%ARCH%"^
+ -DCMAKE_PREFIX_PATH="%DEPS_DIR%"^
+ -DCMAKE_INSTALL_PREFIX="%DEPS_DIR%"^
+ -DBUILD_SHARED_LIBS=ON^
+ . >>"%log_file%" 2>&1 || exit 1
+call :pm-echo "Compiling..."
+msbuild ALL_BUILD.vcxproj /p:Configuration=%MSBUILD_CONFIGURATION% /m >>"%log_file%" 2>&1 || exit 1
+call :pm-echo "Installing files..."
+msbuild INSTALL.vcxproj /p:Configuration=%MSBUILD_CONFIGURATION% /m >>"%log_file%" 2>&1 || exit 1
 
 cd /D "%DEPS_DIR%"
 
@@ -282,6 +300,7 @@ call configure^
  --enable-xxhash^
  --enable-zip^
  --enable-zlib^
+ --enable-zstd^
  --with-bz2=shared^
  --with-crypto=shared^
  --with-curl^
