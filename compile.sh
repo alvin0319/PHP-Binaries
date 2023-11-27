@@ -1106,6 +1106,8 @@ get_github_extension "arraydebug" "$EXT_ARRAYDEBUG_VERSION" "pmmp" "ext-arraydeb
 
 get_github_extension "encoding" "$EXT_ENCODING_VERSION" "pmmp" "ext-encoding"
 
+get_github_extension "zstd" "$EXT_ZSTD_VERSION" "kjdev" "php-ext-zstd"
+
 write_library "PHP" "$PHP_VERSION"
 
 write_configure
@@ -1185,6 +1187,7 @@ RANLIB=$RANLIB CFLAGS="$CFLAGS $FLAGS_LTO" CXXFLAGS="$CXXFLAGS $FLAGS_LTO" LDFLA
 --with-openssl \
 --with-zip \
 --with-libdeflate \
+--with-libzstd \
 $HAS_LIBJPEG \
 $HAS_GD \
 --with-leveldb="$INSTALL_DIR" \
@@ -1394,6 +1397,7 @@ if [ "$DO_CLEANUP" == "yes" ]; then
 	rm -r -f "$INSTALL_DIR/lib/"*.a >> "$DIR/install.log" 2>&1
 	rm -r -f "$INSTALL_DIR/lib/"*.la >> "$DIR/install.log" 2>&1
 	rm -r -f "$INSTALL_DIR/include" >> "$DIR/install.log" 2>&1
+	rm -f "$INSTALL_DIR/bin/zstd"* >> "$DIR/install.log" 2>&1
 fi
 
 date >> "$DIR/install.log" 2>&1
