@@ -37,6 +37,7 @@ set PHP_XXHASH_VER=0.2.0
 set PHP_XDEBUG_VER=3.2.2
 set PHP_ARRAYDEBUG_VER=0.2.0
 set PHP_ENCODING_VER=0.2.3
+set PHP_ZSTD_VER=0.12.3
 
 set script_path=%~dp0
 set log_file=%script_path%compile.log
