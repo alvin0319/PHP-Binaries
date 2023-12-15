@@ -13,11 +13,12 @@ concurrency:
 
 jobs:
   linux:
-    name: Linux (PM ${{ matrix.pm-version-major }})
+    name: Linux (PM ${{ matrix.pm-version-major }}, JIT ${{ matrix.jit }})
     runs-on: ubuntu-20.04
     strategy:
       matrix:
         pm-version-major: [ 5 ]
+        jit: [ "on", "off" ]
 
     steps:
       - uses: actions/checkout@v4
@@ -35,12 +36,20 @@ jobs:
           key: compile-sh-cache-ssl-https-${{ hashFiles('./compile.sh') }}
           restore-keys: compile-sh-cache-ssl-https-
 
+      - name: Set JIT flag
+        if: ${{ matrix.jit }} == "on"
+        run: echo ""
+
       - name: Compile PHP
         run: |
           # Used "set -ex" instead of hashbang since script isn't executed with hashbang
           set -ex
           trap "exit 1" ERR
-          ./compile.sh -t linux64 -j 4 -g -P ${{ matrix.pm-version-major }} -c ./download_cache -D
+          if [ "${{ matrix.jit }}" == "on" ]; then
+              ./compile.sh -t linux64 -j 4 -g -P ${{ matrix.pm-version-major }} -c ./download_cache -D -J
+          else
+              ./compile.sh -t linux64 -j 4 -g -P ${{ matrix.pm-version-major }} -c ./download_cache -D
+          fi
 
       - name: Create tarball
         run: |
@@ -51,7 +60,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Linux-PM${{ matrix.pm-version-major }}
+          name: Linux-PM${{ matrix.pm-version-major }}-with-jit-${{ matrix.jit }}
           path: |
             ./PHP-Linux-x86_64-PM${{ matrix.pm-version-major }}*.tar.gz
             install.log
